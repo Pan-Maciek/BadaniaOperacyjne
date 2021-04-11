@@ -1,15 +1,24 @@
 #include "Camera.h"
 #include <iostream>
 
-Camera::Camera(int winw,int winh) {
+Camera::Camera(int winw,int winh, sf::RenderWindow& window) {
 	view.setCenter(0, 0);
-	view.setSize(10, 10);
-	zoom = 0.01;
+	view.setSize(window.getDefaultView().getSize());
+	size = view.getSize();
+	zoom = 0.03;
 	move = false;
+	view.zoom(zoom);
+	window.setView(view);
 }
 
 void Camera::update(sf::RenderWindow& window,sf::Event e) {
 	switch (e.type) {
+		case sf::Event::Resized:
+			size = sf::Vector2f(e.size.width, e.size.height);
+			view.setSize(size);
+			view.zoom(zoom);
+			window.setView(view);
+			break;
 
 		case sf::Event::MouseButtonPressed:
 			if (e.mouseButton.button == 0) {
@@ -35,7 +44,6 @@ void Camera::update(sf::RenderWindow& window,sf::Event e) {
 			delta.y *= zoom;
 
 			
-			std::cout << e.mouseMove.x << " " << e.mouseMove.y << std::endl;
 			view.move(delta);
 			window.setView(view);
 
@@ -52,10 +60,9 @@ void Camera::update(sf::RenderWindow& window,sf::Event e) {
 			else if (e.mouseWheelScroll.delta >= 1)
 				zoom = zoom * 0.9;
 
-			std::cout << "total zoom: " << zoom << std::endl;
 
 		
-			view.setSize(window.getDefaultView().getSize());
+			view.setSize(size);
 			view.zoom(zoom);
 			window.setView(view);
 

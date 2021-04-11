@@ -15,7 +15,7 @@ using namespace std;
 void createEnv(std::vector<sf::Shape*>& shapes,sf::Vector2f start, sf::Vector2f end,sf::Vector2f worldSize) {
 	sf::RectangleShape* world=new sf::RectangleShape(worldSize);
 	world->setOrigin(worldSize.x/2,worldSize.y/2);
-	world->setPosition(start);
+	world->setPosition(0,0);
 
 	world->setFillColor(sf::Color::White);
 	shapes.push_back(world);
@@ -42,7 +42,7 @@ void createEnv(std::vector<sf::Shape*>& shapes,sf::Vector2f start, sf::Vector2f 
 }
 
 void drawEntities(sf::RenderWindow& window, std::vector<Solution>& solutions,sf::Vector2f start) {
-    sf::Vector2f center(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+
 	for (int i = 0; i < solutions.size(); i++) {
 		sf::Vector2f position = start;
         sf::Vertex line[2];	
@@ -80,9 +80,7 @@ int main() {
 	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "BO Visual", sf::Style::Default, settings);
 	window.setFramerateLimit(FPS);
 
-	Camera cam(WINDOW_WIDTH, WINDOW_HEIGHT);
-
-	window.setView(cam.view);
+	Camera cam(WINDOW_WIDTH, WINDOW_HEIGHT,window);
 
 	std::vector<sf::Shape*> env;
 	createEnv(env,sf::Vector2f(S.x,S.y), sf::Vector2f(T.x, T.y),sf::Vector2f(20,20));//here load world size as rect centered on 0,0 and start/end points
@@ -96,6 +94,8 @@ int main() {
 		{
 			if (event.type == sf::Event::Closed)
 				window.close();
+
+
 
 			cam.update(window,event);
 			

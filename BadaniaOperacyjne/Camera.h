@@ -6,8 +6,9 @@ public:
 	float zoom;
 	bool move;
 	sf::Vector2f prev;
+	sf::Vector2f size;
 
 	void update(sf::RenderWindow& window, sf::Event e);
-	Camera(int winw, int winh);
+	Camera(int winw, int winh, sf::RenderWindow& window);
 
 };

@@ -31,9 +31,7 @@ void GeneticOptimizer::step() {
 
     int i = 0;
 
-    for(int j=0; j<population_size; j++){
-        cout<<j<<": "<<current_generation.solutions[j].cost<<endl;
-    }
+    
 
     for (; i < (int)KEEP_BEST * population_size; i++)
         next_generation[i] = current_generation.solutions[i];
@@ -45,6 +43,10 @@ void GeneticOptimizer::step() {
 
     current_generation = Generation(next_generation);
     current_generation.sort();
+
+    for (int j = 0; j < population_size; j++) {
+        cout << j << ": " << current_generation.solutions[j].cost << endl;
+    }
 }
 
 Solution GeneticOptimizer::best_solution() {

@@ -28,7 +28,7 @@ void createEnv(std::vector<sf::Shape*>& shapes,sf::Vector2f start, sf::Vector2f 
     shapes.push_back(startShape);
 
 	sf::CircleShape* circleShape = new sf::CircleShape(1);
-	circleShape->setOrigin(0.5, 0.5);
+	circleShape->setOrigin(1, 1);
 	circleShape->setPosition(0, 0);
 	circleShape->setFillColor(sf::Color::Red);
 	shapes.push_back(circleShape);
@@ -55,6 +55,12 @@ void drawEntities(sf::RenderWindow& window, std::vector<Solution>& solutions,sf:
 			position+=sf::Vector2f(cos(angle) * STEP_SIZE, sin(angle) * STEP_SIZE);
 			line[1].position = position;
             window.draw(line, 2, sf::Lines);
+
+			sf::CircleShape circleShape(0.05);
+			circleShape.setOrigin(0.025, 0.025);
+			circleShape.setPosition(position.x, position.y);
+			circleShape.setFillColor(sf::Color::Red);
+			window.draw(circleShape);
 		}
 		
 		sf::CircleShape entity;
@@ -102,8 +108,8 @@ int main() {
 			//other events
 			if (event.type == sf::Event::KeyPressed) {
 				switch (event.key.code) {
-
 				case sf::Keyboard::Comma:
+					//optimizer.step();
 					break;
 				}
 			}
@@ -113,9 +119,9 @@ int main() {
 		window.clear();
         draw(window, env);
         drawEntities(window, optimizer.current_generation.solutions, sf::Vector2f(S.x, S.y));
+		
+		//cout << optimizer.best_solution().cost << endl;
 		optimizer.step();
-		cout << optimizer.best_solution().cost << endl;
-
 		window.display();
 	}
 

@@ -18,7 +18,7 @@ float sd_box(vec2 p, vec2 b) {
 }
 
 bool world_check(vec2 position) {
-    return sd_box(position, vec2(10.f, 10.f)) < 0;
+    return sd_box(position, vec2(10.f, 10.f)) > 0;
 }
 
 float sd_circle(vec2 p, float r) {
@@ -38,7 +38,7 @@ float F(vector<float>& V) {
         //if (length(position - T) < STEP_SIZE) {
         //    break;
         //}
-        if (!detect_collision(position)) {
+        if (detect_collision(position)) {
             cost += f3(position);
         }
     }

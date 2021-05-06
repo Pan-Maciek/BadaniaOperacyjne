@@ -22,14 +22,22 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Generation.cpp" />
     <ClCompile Include="GeneticOptimizer.cpp" />
+    <ClCompile Include="PSO.cpp" />
+    <ClCompile Include="randomGen.cpp" />
     <ClCompile Include="Solution.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="CircleObstacle.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="Generation.h" />
     <ClInclude Include="GeneticOptimizer.h" />
+    <ClInclude Include="Obstacle.h" />
+    <ClInclude Include="Particle.h" />
+    <ClInclude Include="PSO.h" />
+    <ClInclude Include="randomGen.h" />
+    <ClInclude Include="RectObstacle.h" />
     <ClInclude Include="Solution.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

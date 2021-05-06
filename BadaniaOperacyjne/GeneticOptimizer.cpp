@@ -5,7 +5,7 @@
 static random_device r;
 static default_random_engine random_engine(r());
 
-Solution crossover(const Solution& a, const Solution& b) {
+Solution crossover(const Solution& a, const Solution& b, std::vector<Obstacle*> obstacles) {
     vector<float> steps(a.steps.size());
 
     static uniform_real_distribution<float> mutation_chance(0, 1);
@@ -18,13 +18,15 @@ Solution crossover(const Solution& a, const Solution& b) {
     for (int i = split; i < b.steps.size(); i++)
         steps[i] = b.steps[i] + (mutation_chance(random_engine) < MUTATION_CHANCE ? mutation_angle(random_engine) : 0);
 
-    return Solution(steps);
+    return Solution(steps,obstacles);
 }
 
 GeneticOptimizer::GeneticOptimizer(int population_size, int solution_size) :
-    current_generation(Generation::random(population_size, solution_size)),
+    current_generation(Generation::random(population_size, solution_size, obstacles)),
     population_size(population_size)
-{ current_generation.sort(); }
+{
+    current_generation.sort(); 
+}
 
 void GeneticOptimizer::step() {
     vector<Solution> next_generation(population_size);
@@ -38,7 +40,7 @@ void GeneticOptimizer::step() {
 
     for (; i < population_size; i++) {
         auto parents = current_generation.select_n(2);
-        next_generation[i] = crossover(parents[0], parents[1]);
+        next_generation[i] = crossover(parents[0], parents[1],obstacles);
     }
 
     current_generation = Generation(next_generation);
@@ -51,4 +53,14 @@ void GeneticOptimizer::step() {
 
 Solution GeneticOptimizer::best_solution() {
     return current_generation.best_solution();
+}
+
+void GeneticOptimizer::addRectObstacle(glm::vec2 pos, glm::vec2 size) {
+    RectObstacle* obstacle = new RectObstacle(pos, size);
+    this->obstacles.push_back(obstacle);
+}
+
+void GeneticOptimizer::addCircleObstacle(glm::vec2 pos, double radius) {
+    CircleObstacle* obstacle = new CircleObstacle(pos, radius);
+    this->obstacles.push_back(obstacle);
 }

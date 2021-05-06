@@ -13,7 +13,7 @@ const float MUTATION_ANGLE = M_PI / 14;
 const float KEEP_BEST = 0;
 
 const int POPULATION_SIZE = 50;
-const int SOLUTION_SIZE = 45;
+const int SOLUTION_SIZE = 65;
 
 //Start, Target Definitions
 const vec2 S(0, -5);

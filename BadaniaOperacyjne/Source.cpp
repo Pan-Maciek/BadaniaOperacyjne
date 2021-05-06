@@ -12,7 +12,7 @@ using namespace glm;
 using namespace std;
 
 
-void createEnv(std::vector<sf::Shape*>& shapes,sf::Vector2f start, sf::Vector2f end,sf::Vector2f worldSize) {
+void createEnv(std::vector<sf::Shape*>& shapes,sf::Vector2f start, sf::Vector2f end,sf::Vector2f worldSize,vector<Obstacle*> obstacles) {
 	sf::RectangleShape* world=new sf::RectangleShape(worldSize);
 	world->setOrigin(worldSize.x/2,worldSize.y/2);
 	world->setPosition(0,0);
@@ -27,18 +27,16 @@ void createEnv(std::vector<sf::Shape*>& shapes,sf::Vector2f start, sf::Vector2f 
     startShape->setFillColor(sf::Color::Green);
     shapes.push_back(startShape);
 
-	sf::CircleShape* circleShape = new sf::CircleShape(1);
-	circleShape->setOrigin(1, 1);
-	circleShape->setPosition(0, 0);
-	circleShape->setFillColor(sf::Color::Red);
-	shapes.push_back(circleShape);
-
 
     sf::RectangleShape* endShape = new sf::RectangleShape(sf::Vector2f(1, 1));
     endShape->setOrigin(0.5, 0.5);
     endShape->setPosition(end);
     endShape->setFillColor(sf::Color::Blue);
     shapes.push_back(endShape);
+
+	for (auto obstacle : obstacles) {
+		shapes.push_back(obstacle->shape);
+	}
 }
 
 void drawEntities(sf::RenderWindow& window, std::vector<Solution>& solutions,sf::Vector2f start) {
@@ -57,14 +55,14 @@ void drawEntities(sf::RenderWindow& window, std::vector<Solution>& solutions,sf:
             window.draw(line, 2, sf::Lines);
 
 			sf::CircleShape circleShape(0.05);
-			circleShape.setOrigin(0.025, 0.025);
+			circleShape.setOrigin(0.05, 0.05);
 			circleShape.setPosition(position.x, position.y);
 			circleShape.setFillColor(sf::Color::Red);
 			window.draw(circleShape);
 		}
 		
 		sf::CircleShape entity;
-        entity.setOrigin(0.05, 0.05);
+        entity.setOrigin(0.1, 0.1);
 		entity.setRadius(0.1);
 		entity.setFillColor(sf::Color::Blue);
 		entity.setPosition(position);
@@ -88,10 +86,17 @@ int main() {
 
 	Camera cam(WINDOW_WIDTH, WINDOW_HEIGHT,window);
 
-	std::vector<sf::Shape*> env;
-	createEnv(env,sf::Vector2f(S.x,S.y), sf::Vector2f(T.x, T.y),sf::Vector2f(20,20));//here load world size as rect centered on 0,0 and start/end points
 
 	GeneticOptimizer optimizer(POPULATION_SIZE, SOLUTION_SIZE);
+	optimizer.addCircleObstacle(glm::vec2(5, -2), 1);
+	optimizer.addCircleObstacle(glm::vec2(-5, -2), 1);
+	optimizer.addCircleObstacle(glm::vec2(0, 0), 1);
+	optimizer.addRectObstacle(glm::vec2(2.5, 3), glm::vec2(2,2));
+	optimizer.addRectObstacle(glm::vec2(-2.5, 3), glm::vec2(2, 2));
+
+	std::vector<sf::Shape*> env;
+	//here load world size as rect centered on 0,0 and start/end points
+	createEnv(env, sf::Vector2f(S.x, S.y), sf::Vector2f(T.x, T.y), sf::Vector2f(20, 20),optimizer.obstacles);
 
 	while (window.isOpen())
 	{

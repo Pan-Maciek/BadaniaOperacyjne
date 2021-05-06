@@ -8,10 +8,10 @@ static default_random_engine random_engine(r());
 Generation::Generation(int population_size) :
     solutions(population_size), cum_sum(), cum_sum_value(0) { }
 
-Generation Generation::random(int population_size, int solution_size) {
+Generation Generation::random(int population_size, int solution_size, std::vector<Obstacle*> obstacles) {
     Generation gen(population_size);
     for (int i = 0; i < population_size; i++)
-        gen.solutions[i] = Solution::random(solution_size);
+        gen.solutions[i] = Solution::random(solution_size,obstacles);
     return gen;
 }
 

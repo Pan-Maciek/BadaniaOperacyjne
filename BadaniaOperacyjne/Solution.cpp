@@ -25,11 +25,14 @@ float sd_circle(vec2 p, float r) {
     return length(p) - r;
 }
 
-bool detect_collision(vec2 position) {
-    return world_check(position) || (sd_circle(position, 1) < 0);
+bool detect_collision(vec2 position, std::vector<Obstacle*> obstacles) {
+    for (auto obstacle : obstacles)
+        if (obstacle->testAgainst(position))
+            return true;
+    return world_check(position);
 }
 
-float F(vector<float>& V) {
+float F(vector<float>& V, std::vector<Obstacle*> obstacles) {
     float cost = 0.f;
     vec2 position = S;
     for (float angle : V) {
@@ -38,7 +41,7 @@ float F(vector<float>& V) {
         //if (length(position - T) < STEP_SIZE) {
         //    break;
         //}
-        if (detect_collision(position)) {
+        if (detect_collision(position,obstacles)) {
             cost += f3(position);
         }
     }
@@ -49,16 +52,16 @@ float F(vector<float>& V) {
     return cost;
 }
 
-Solution Solution::random(int solution_size) {
+Solution Solution::random(int solution_size, std::vector<Obstacle*> obstacles) {
 	static uniform_real_distribution<float> rng1(-M_PI, M_PI);
 	static uniform_real_distribution<float> rng2(-MUTATION_ANGLE, MUTATION_ANGLE);
 	vector<float> steps(solution_size);
     steps[0] = rng1(random_engine);
 	for (int i = 1; i < solution_size; i++)
 		steps[i] = steps[i-1] + rng2(random_engine);
-	return Solution(steps);
+	return Solution(steps, obstacles);
 }
 
-Solution::Solution(vector<float> steps) : 
-	cost(F(steps)), steps(steps) {}
+Solution::Solution(vector<float> steps,  std::vector<Obstacle*> obstacles) :
+	cost(F(steps,obstacles)), steps(steps) {}
 

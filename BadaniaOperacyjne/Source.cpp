@@ -7,6 +7,7 @@
 #include "Solution.h"
 #include "GeneticOptimizer.h"
 #include "Config.h"
+#include "PSO.h"
 
 using namespace glm;
 using namespace std;
@@ -70,7 +71,37 @@ void drawEntities(sf::RenderWindow& window, std::vector<Solution>& solutions,sf:
 		entity.setPosition(position);
         window.draw(entity);
 	}
+}
 
+void drawEntities(sf::RenderWindow& window, std::vector<Particle>& particles, sf::Vector2f start) {
+
+	for (int i = 0; i < particles.size(); i++) {
+		sf::Vector2f position = start;
+        sf::Vertex line[2];	
+		for (int y = 0; y < SOLUTION_SIZE; y++) {
+            line[0].color = sf::Color(123, 123, 123);
+            line[0].position = position;
+
+			line[1].color = sf::Color(123, 123, 123);
+			float angle = particles[i].position[y];
+			position+=sf::Vector2f(cos(angle) * STEP_SIZE, sin(angle) * STEP_SIZE);
+			line[1].position = position;
+            window.draw(line, 2, sf::Lines);
+
+			sf::CircleShape circleShape(0.05);
+			circleShape.setOrigin(0.025, 0.025);
+			circleShape.setPosition(position.x, position.y);
+			circleShape.setFillColor(sf::Color::Red);
+			window.draw(circleShape);
+		}
+		
+		sf::CircleShape entity;
+        entity.setOrigin(0.05, 0.05);
+		entity.setRadius(0.1);
+		entity.setFillColor(sf::Color::Blue);
+		entity.setPosition(position);
+        window.draw(entity);
+	}
 }
 
 void draw(sf::RenderWindow& window, std::vector<sf::Shape*>& shapes) {
@@ -92,6 +123,7 @@ int main() {
 	createEnv(env,sf::Vector2f(S.x,S.y), sf::Vector2f(T.x, T.y),sf::Vector2f(20,20));//here load world size as rect centered on 0,0 and start/end points
 
 	GeneticOptimizer optimizer(POPULATION_SIZE, SOLUTION_SIZE);
+	PSO pso({ 10, 10 }, S, T, SOLUTION_SIZE, STEP_SIZE, POPULATION_SIZE, { -1, 1 });
 
 	while (window.isOpen())
 	{
@@ -118,10 +150,14 @@ int main() {
 
 		window.clear();
         draw(window, env);
-        drawEntities(window, optimizer.current_generation.solutions, sf::Vector2f(S.x, S.y));
+        //drawEntities(window, optimizer.current_generation.solutions, sf::Vector2f(S.x, S.y));
+		drawEntities(window, pso.particles, sf::Vector2f(S.x, S.y));
 		
+		
+		 cout << pso.bestCost << endl;
 		//cout << optimizer.best_solution().cost << endl;
-		optimizer.step();
+		//optimizer.step();
+		pso.step();
 		window.display();
 	}
 

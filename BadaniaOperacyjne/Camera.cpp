@@ -21,7 +21,7 @@ void Camera::update(sf::RenderWindow& window,sf::Event e) {
 			break;
 
 		case sf::Event::MouseButtonPressed:
-			if (e.mouseButton.button == 0) {
+			if (e.mouseButton.button == 0&& sf::Mouse::getPosition(window).y>100 *window.getSize().y /920) {
 				move = true;
 				prev = sf::Vector2f(sf::Mouse::getPosition(window));
 			}

@@ -3,6 +3,8 @@
 #define NK_INCLUDE_DEFAULT_FONT
 #define NK_IMPLEMENTATION
 #include "nuklear/nuklear.h"
+#include <iostream>
+#include "Config.h"
 
 float width_calculation(nk_handle handle, float height, const char* text, int len)
 {
@@ -83,11 +85,11 @@ void UI::nuklearSfmlDrawTriangleFilled(const nk_command* cmd, sf::RenderWindow& 
 
 }
 
-void UI::eventsToGui(sf::Event* evt) {
-	nk_input_begin(&ctx);
+void UI::eventsToGui(sf::Event* evt, sf::RenderWindow& window) {
+	
 	if (evt->type == sf::Event::MouseButtonPressed || evt->type == sf::Event::MouseButtonReleased) {
 		int down = evt->type == sf::Event::MouseButtonPressed;
-		const int x = evt->mouseButton.x, y = evt->mouseButton.y;
+		const int x = (double)evt->mouseButton.x / window.getSize().x * 920, y = (double)evt->mouseButton.y / window.getSize().y * 920;
 		if (evt->mouseButton.button == sf::Mouse::Left)
 			nk_input_button(&ctx, NK_BUTTON_LEFT, x, y, down);
 		if (evt->mouseButton.button == sf::Mouse::Middle)
@@ -97,7 +99,7 @@ void UI::eventsToGui(sf::Event* evt) {
 
 	}
 	else if (evt->type == sf::Event::MouseMoved) {
-		nk_input_motion(&ctx, evt->mouseMove.x, evt->mouseMove.y);
+		nk_input_motion(&ctx, (double)evt->mouseMove.x/window.getSize().x*920, (double)evt->mouseMove.y/ window.getSize().y*920);
 
 	}
 	else if (evt->type == sf::Event::KeyPressed || evt->type == sf::Event::KeyReleased) {
@@ -125,7 +127,7 @@ void UI::eventsToGui(sf::Event* evt) {
 
 			}
 	}
-	nk_input_end(&ctx);
+	
 
 }
 
@@ -140,12 +142,95 @@ UI::UI(sf::RenderWindow* window) {
 }
 
 void UI::draw() {
-	if (nk_begin(&ctx, "LeftPanel", nk_rect(0,0, window->getSize().x, 100), NK_WINDOW_BORDER)) {
-		nk_layout_row_static(&ctx, 30, 360, 1);
+	if (nk_begin(&ctx, "UpPanel", nk_rect(0,0, window->getSize().x, 100), NK_WINDOW_BORDER| NK_WINDOW_NO_SCROLLBAR)) {
+
 		
-	
+		nk_layout_row_begin(&ctx, NK_STATIC, 23, 7);
+		{
+			nk_layout_row_push(&ctx, 140);
+			nk_label(&ctx, "Step size:", NK_TEXT_LEFT);
+			nk_layout_row_push(&ctx, 120);
+			nk_slider_float(&ctx, 0.1, &STEP_SIZE_UI, 10.0f, 0.1f);
+			font.height = 13;
+			nk_layout_row_push(&ctx, 70);
+			nk_property_float(&ctx, "#", 0.1f, &STEP_SIZE_UI, 10.0f, 0.1f, 0);
+			font.height = 15;
+			nk_layout_row_push(&ctx, 20);
+			nk_label(&ctx, "", NK_TEXT_LEFT);
+			nk_layout_row_push(&ctx, 140);
+			nk_label(&ctx, "Mutation chance:", NK_TEXT_LEFT);
+			nk_layout_row_push(&ctx, 120);
+			nk_slider_float(&ctx, 0.1, &MUTATION_CHANCE_UI, 1.0f, 0.1f);
+			font.height = 13;
+			nk_layout_row_push(&ctx, 70);
+			nk_property_float(&ctx, "#", 0.1f, &MUTATION_CHANCE_UI, 1.0f, 0.1f, 0);
+			nk_layout_row_end(&ctx);
+		}
+
+		nk_layout_row_begin(&ctx, NK_STATIC, 23, 7);
+		{
+			font.height = 15;
+			nk_layout_row_push(&ctx, 140);
+			nk_label(&ctx, "Mutation angle:", NK_TEXT_LEFT);
+			nk_layout_row_push(&ctx, 120);
+			nk_slider_float(&ctx, 0.02f, &MUTATION_ANGLE_UI, 1.0f, 0.01f);
+			font.height = 13;
+			nk_layout_row_push(&ctx, 70);
+			nk_property_float(&ctx, "#", 0.02f, &MUTATION_ANGLE_UI, 1.0f, 0.01f, 0);
+			font.height = 15;
+			nk_layout_row_push(&ctx, 20);
+			nk_label(&ctx, "", NK_TEXT_LEFT);
+			nk_layout_row_push(&ctx, 140);
+			nk_label(&ctx, "Keep best:", NK_TEXT_LEFT);
+			nk_layout_row_push(&ctx, 120);
+			nk_slider_float(&ctx, 0.f, &KEEP_BEST_UI, 1.0f, 0.1f);
+			font.height = 13;
+			nk_layout_row_push(&ctx, 70);
+			nk_property_float(&ctx, "#", 0.f, &KEEP_BEST_UI, 1.0f, 0.1f, 0);
+			nk_layout_row_end(&ctx);
+		}
+		nk_layout_row_begin(&ctx, NK_STATIC, 23, 7);
+		{
+			font.height = 15;
+			nk_layout_row_push(&ctx, 140);
+			nk_label(&ctx, "Population size:", NK_TEXT_LEFT);
+			nk_layout_row_push(&ctx, 120);
+			nk_slider_int(&ctx, 10, &POPULATION_SIZE_UI, 200, 1);
+			font.height = 13;
+			nk_layout_row_push(&ctx, 70);
+			nk_property_int(&ctx, "#", 10, &POPULATION_SIZE_UI, 200, 1, 0);
+			font.height = 15;
+			nk_layout_row_push(&ctx, 20);
+			nk_label(&ctx, "", NK_TEXT_LEFT);
+			nk_layout_row_push(&ctx, 140);
+			nk_label(&ctx, "Solution size:", NK_TEXT_LEFT);
+			nk_layout_row_push(&ctx, 120);
+			nk_slider_int(&ctx, 10, &SOLUTION_SIZE_UI, 200, 1);
+			font.height = 13;
+			nk_layout_row_push(&ctx, 70);
+			nk_property_int(&ctx, "#", 10, &SOLUTION_SIZE_UI, 200, 1, 0);
+			nk_layout_row_end(&ctx);
+		}
+		font.height = 15;
+
+		nk_layout_space_begin(&ctx, NK_STATIC, 50, 1);
+		nk_layout_space_push(&ctx, nk_layout_space_rect_to_local(&ctx,nk_rect(735, 20, 150, 50)));
+
+		if (nk_button_label(&ctx, "Upload")) {
+			STEP_SIZE = STEP_SIZE_UI;
+			MUTATION_CHANCE = MUTATION_CHANCE_UI;
+			MUTATION_ANGLE = MUTATION_ANGLE_UI;
+			KEEP_BEST = KEEP_BEST_UI;
+			POPULATION_SIZE = POPULATION_SIZE_UI;
+			SOLUTION_SIZE = SOLUTION_SIZE_UI;
+			upload = true;
+		}
 	}
 	nk_end(&ctx);
+
+
+
+	
 	
 	const struct nk_command* cmd = 0;
 	nk_foreach(cmd, &ctx) {
@@ -157,7 +242,7 @@ void UI::draw() {
 			nuklearSfmlDrawText(cmd, *window);
 			break;
 		case NK_COMMAND_SCISSOR:
-			nuklearSfmlDrawScissor(cmd, *window);
+			//nuklearSfmlDrawScissor(cmd, *window);
 			break;
 		case NK_COMMAND_RECT:
 			nuklearSfmlDrawRectOutline(cmd, *window);

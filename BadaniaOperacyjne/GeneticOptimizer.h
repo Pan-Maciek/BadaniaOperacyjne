@@ -4,7 +4,7 @@
 #include "Config.h"
 
 struct GeneticOptimizer {
-    const int population_size;
+    int population_size;
     Generation current_generation;
     std::vector<Obstacle*> obstacles;
 

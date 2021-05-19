@@ -7,7 +7,9 @@
 #include "Solution.h"
 #include "GeneticOptimizer.h"
 #include "Config.h"
-
+#include "UI.h"
+#include <thread>
+#include <future>
 using namespace glm;
 using namespace std;
 
@@ -41,39 +43,69 @@ void createEnv(std::vector<sf::Shape*>& shapes,sf::Vector2f start, sf::Vector2f 
 
 void drawEntities(sf::RenderWindow& window, std::vector<Solution>& solutions,sf::Vector2f start) {
 
+	sf::Vertex* lines = new sf::Vertex[2 * SOLUTION_SIZE* solutions.size()];
+	sf::VertexArray quads(sf::Quads, 4* SOLUTION_SIZE * solutions.size());
 	for (int i = 0; i < solutions.size(); i++) {
 		sf::Vector2f position = start;
-        sf::Vertex line[2];	
-		for (int y = 0; y < SOLUTION_SIZE; y++) {
-            line[0].color = sf::Color(123, 123, 123);
-            line[0].position = position;
+        
+		for (int y = 0; y < 2*SOLUTION_SIZE; y+=2) {
+            lines[i* 2*SOLUTION_SIZE+y].color = sf::Color(123, 123, 123);
+            lines[i *2* SOLUTION_SIZE + y].position = position;
 
-			line[1].color = sf::Color(123, 123, 123);
-			float angle = solutions[i].steps[y];
+			lines[i *2* SOLUTION_SIZE + y+1].color = sf::Color(123, 123, 123);
+			float angle = solutions[i].steps[y/2];
 			position+=sf::Vector2f(cos(angle) * STEP_SIZE, sin(angle) * STEP_SIZE);
-			line[1].position = position;
-            window.draw(line, 2, sf::Lines);
+			lines[i *2* SOLUTION_SIZE + y+1].position = position;
+            
 
-			sf::CircleShape circleShape(0.05);
-			circleShape.setOrigin(0.05, 0.05);
-			circleShape.setPosition(position.x, position.y);
-			circleShape.setFillColor(sf::Color::Red);
-			window.draw(circleShape);
-		}
+			sf::RectangleShape rectShape(sf::Vector2f(0.05, 0.05));
+			rectShape.setOrigin(0.025, 0.025);
+			rectShape.setPosition(position.x, position.y);
+			rectShape.setFillColor(sf::Color::Red);
 		
+			auto size = rectShape.getSize();
+
+			quads[4*i* SOLUTION_SIZE+y*2].position = rectShape.getPosition()+ sf::Vector2f(-size.x / 2, -size.y / 2);
+			quads[4 * i * SOLUTION_SIZE + y*2].color = sf::Color::Red;
+			quads[4 * i * SOLUTION_SIZE + y*2+1].position = rectShape.getPosition() + sf::Vector2f(size.x / 2, -size.y / 2);
+			quads[4 * i * SOLUTION_SIZE + y*2+1].color = sf::Color::Red;
+			quads[4 * i * SOLUTION_SIZE + y*2+2].position = rectShape.getPosition() + sf::Vector2f(size.x / 2, size.y / 2);
+			quads[4 * i * SOLUTION_SIZE + y*2+2].color = sf::Color::Red;
+			quads[4 * i * SOLUTION_SIZE + y*2+3].position = rectShape.getPosition() + sf::Vector2f(-size.x / 2, size.y / 2);
+			quads[4 * i * SOLUTION_SIZE + y*2+3].color = sf::Color::Red;
+
+		}
+
 		sf::CircleShape entity;
         entity.setOrigin(0.1, 0.1);
 		entity.setRadius(0.1);
 		entity.setFillColor(sf::Color::Blue);
 		entity.setPosition(position);
         window.draw(entity);
+		
 	}
+	window.draw(lines, 2 * SOLUTION_SIZE * solutions.size(), sf::Lines);
+	
 
+	window.draw(quads);
 }
 
 void draw(sf::RenderWindow& window, std::vector<sf::Shape*>& shapes) {
 	for (auto it = shapes.begin(); it != shapes.end(); it++)
 		window.draw(**it);
+}
+GeneticOptimizer initOptimizer(){
+	GeneticOptimizer optimizer(POPULATION_SIZE, SOLUTION_SIZE);
+	optimizer.addCircleObstacle(glm::vec2(5, -2), 1);
+	optimizer.addCircleObstacle(glm::vec2(-5, -2), 1);
+	optimizer.addCircleObstacle(glm::vec2(0, 0), 1);
+	optimizer.addRectObstacle(glm::vec2(2.5, 3), glm::vec2(2, 2));
+	optimizer.addRectObstacle(glm::vec2(-2.5, 3), glm::vec2(2, 2));
+	return optimizer;
+}
+bool calculate(GeneticOptimizer& optimizer) {
+	optimizer.step();
+	return true;
 }
 
 int main() {
@@ -82,25 +114,25 @@ int main() {
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 8;
 	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "BO Visual", sf::Style::Default, settings);
-	window.setFramerateLimit(FPS);
+	//window.setFramerateLimit(FPS);
 
 	Camera cam(WINDOW_WIDTH, WINDOW_HEIGHT,window);
+	//UI
+	UI ui(&window);
 
-
-	GeneticOptimizer optimizer(POPULATION_SIZE, SOLUTION_SIZE);
-	optimizer.addCircleObstacle(glm::vec2(5, -2), 1);
-	optimizer.addCircleObstacle(glm::vec2(-5, -2), 1);
-	optimizer.addCircleObstacle(glm::vec2(0, 0), 1);
-	optimizer.addRectObstacle(glm::vec2(2.5, 3), glm::vec2(2,2));
-	optimizer.addRectObstacle(glm::vec2(-2.5, 3), glm::vec2(2, 2));
+	GeneticOptimizer optimizer = initOptimizer();
 
 	std::vector<sf::Shape*> env;
 	//here load world size as rect centered on 0,0 and start/end points
 	createEnv(env, sf::Vector2f(S.x, S.y), sf::Vector2f(T.x, T.y), sf::Vector2f(20, 20),optimizer.obstacles);
 
+	std::future<bool> future;
+	std::vector<Solution> currentEntities;
+	future = std::async(calculate, std::ref(optimizer));
 	while (window.isOpen())
 	{
 		sf::Event event;
+		nk_input_begin(&ui.ctx);
 		while (window.pollEvent(event))
 		{
 			if (event.type == sf::Event::Closed)
@@ -111,22 +143,30 @@ int main() {
 			cam.update(window,event);
 			
 			//other events
-			if (event.type == sf::Event::KeyPressed) {
-				switch (event.key.code) {
-				case sf::Keyboard::Comma:
-					//optimizer.step();
-					break;
-				}
+			ui.eventsToGui(&event,window);
+			if (ui.upload) {
+				optimizer = initOptimizer();
+				ui.upload = false;
 			}
+			
 		}
+		nk_input_end(&ui.ctx);
 
-
-		window.clear();
-        draw(window, env);
-        drawEntities(window, optimizer.current_generation.solutions, sf::Vector2f(S.x, S.y));
 		
+		window.clear();
+		draw(window, env);
+		drawEntities(window, currentEntities, sf::Vector2f(S.x, S.y));
+		if (future.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
+			
+			future = std::async(calculate, std::ref(optimizer));
+			currentEntities = optimizer.current_generation.solutions;
+		}
+		auto view=window.getView();
+		window.setView(window.getDefaultView());
+		ui.draw();
+		window.setView(view);
 		//cout << optimizer.best_solution().cost << endl;
-		optimizer.step();
+		
 		window.display();
 	}
 

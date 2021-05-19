@@ -144,10 +144,7 @@ int main() {
 			
 			//other events
 			ui.eventsToGui(&event,window);
-			if (ui.upload) {
-				optimizer = initOptimizer();
-				ui.upload = false;
-			}
+			
 			
 		}
 		nk_input_end(&ui.ctx);
@@ -157,9 +154,12 @@ int main() {
 		draw(window, env);
 		drawEntities(window, currentEntities, sf::Vector2f(S.x, S.y));
 		if (future.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
-			
-			future = std::async(calculate, std::ref(optimizer));
 			currentEntities = optimizer.current_generation.solutions;
+			if (ui.upload) {
+				optimizer = initOptimizer();
+				ui.upload = false;
+			}
+			future = std::async(calculate, std::ref(optimizer));
 		}
 		auto view=window.getView();
 		window.setView(window.getDefaultView());

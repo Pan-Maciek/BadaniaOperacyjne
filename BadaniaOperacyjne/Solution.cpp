@@ -1,5 +1,5 @@
 #include "Solution.h"
-#include "Config.h"
+#include "config.h"
 #include <random>
 #include <cmath>
 

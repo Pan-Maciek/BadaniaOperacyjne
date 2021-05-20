@@ -4,25 +4,25 @@
 
 using namespace glm;
 
- static int WINDOW_WIDTH = 920;
- static int WINDOW_HEIGHT = 920;
+	extern int WINDOW_WIDTH;
+	extern int WINDOW_HEIGHT;
 
- static float STEP_SIZE = 0.3f;
+	extern float STEP_SIZE;
 
- static float MUTATION_CHANCE = 0.4;
- static float MUTATION_ANGLE = M_PI / 14;
- static float KEEP_BEST = 0;
+	extern float MUTATION_CHANCE;
+	extern float MUTATION_ANGLE;
+	extern float KEEP_BEST;
 
- static int POPULATION_SIZE = 50;
- static int SOLUTION_SIZE = 65;
+	extern int POPULATION_SIZE;
+	extern int SOLUTION_SIZE;
 
-//Start, Target Definitions
-const vec2 S(0, -5);
-const vec2 T(0, 5);
+	//Start, Target Definitions
+	const vec2 S=vec2(0, -5);
+	const vec2 T= vec2(0, 5);
 
-//Obstacles definitions
+	//Obstacles definitions
 
 
 
-const int FPS = 15;
+	const int FPS = 15;
 

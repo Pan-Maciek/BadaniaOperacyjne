@@ -1,7 +1,7 @@
 #pragma once
 #include "Generation.h"
 #include "Solution.h"
-#include "Config.h"
+#include "config.h"
 
 struct GeneticOptimizer {
     int population_size;

@@ -4,7 +4,7 @@
 #define NK_IMPLEMENTATION
 #include "nuklear/nuklear.h"
 #include <iostream>
-#include "Config.h"
+#include "config.h"
 
 float width_calculation(nk_handle handle, float height, const char* text, int len)
 {

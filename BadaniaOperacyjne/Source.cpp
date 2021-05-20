@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 #include "Solution.h"
 #include "GeneticOptimizer.h"
-#include "Config.h"
+#include "config.h"
 #include "UI.h"
 #include <thread>
 #include <future>
@@ -48,8 +48,8 @@ void drawEntities(sf::RenderWindow& window, std::vector<Solution>& solutions,sf:
 	for (int i = 0; i < solutions.size(); i++) {
 		sf::Vector2f position = start;
         
-		for (int y = 0; y < 2*SOLUTION_SIZE; y+=2) {
-            lines[i* 2*SOLUTION_SIZE+y].color = sf::Color(123, 123, 123);
+		for (int y = 0; y < 2* SOLUTION_SIZE; y+=2) {
+            lines[i* 2* SOLUTION_SIZE+y].color = sf::Color(123, 123, 123);
             lines[i *2* SOLUTION_SIZE + y].position = position;
 
 			lines[i *2* SOLUTION_SIZE + y+1].color = sf::Color(123, 123, 123);

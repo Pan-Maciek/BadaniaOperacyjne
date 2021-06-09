@@ -85,7 +85,7 @@ void drawEntities(sf::RenderWindow& window, std::vector<Solution>& solutions,sf:
 		
 	}
 	window.draw(lines, 2 * SOLUTION_SIZE * solutions.size(), sf::Lines);
-	
+	delete[] lines;
 
 	window.draw(quads);
 }
